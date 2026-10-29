@@ -1,5 +1,6 @@
 using AuthECAPI.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,9 +31,36 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapIdentityApi<IdentityUser>();
+app.MapGroup("/api").MapIdentityApi<AppUser>();
 
 app.MapGet("/", () => "AuthECAPI is running");
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
+app.MapPost("/api/signup", async (
+    UserManager<AppUser> UserManager,
+    [FromBody] UserRegistrationModel userRegistrationModel
+    ) =>
+{
+    AppUser user = new AppUser()
+    {
+        Email = userRegistrationModel.Email,
+        FullName = userRegistrationModel.FullName,
+    };
+    var result = await UserManager.CreateAsync(
+        user, 
+        userRegistrationModel.Password);
+
+    if(result.Succeeded)
+        return Results.Ok(result);
+    else
+        return Results.BadRequest(result);
+});
+
 app.Run();
+
+public class UserRegistrationModel 
+{ 
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public string FullName { get; set; }
+}
