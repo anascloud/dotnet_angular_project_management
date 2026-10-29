@@ -12,8 +12,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddIdentityApiEndpoints<IdentityUser>()
+    .AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.User.RequireUniqueEmail = true;
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevDB")));
@@ -40,21 +48,22 @@ app.MapPost("/api/signup", async (
     UserManager<AppUser> UserManager,
     [FromBody] UserRegistrationModel userRegistrationModel
     ) =>
-{
-    AppUser user = new AppUser()
     {
-        Email = userRegistrationModel.Email,
-        FullName = userRegistrationModel.FullName,
-    };
-    var result = await UserManager.CreateAsync(
-        user, 
-        userRegistrationModel.Password);
+        AppUser user = new AppUser()
+        {   
+            UserName = userRegistrationModel.Email,
+            Email = userRegistrationModel.Email,
+            FullName = userRegistrationModel.FullName,
+        };
+        var result = await UserManager.CreateAsync(
+            user, 
+            userRegistrationModel.Password);
 
-    if(result.Succeeded)
-        return Results.Ok(result);
-    else
-        return Results.BadRequest(result);
-});
+        if(result.Succeeded)
+            return Results.Ok(result);
+        else
+            return Results.BadRequest(result);
+    });
 
 app.Run();
 
