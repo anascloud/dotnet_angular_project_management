@@ -1,4 +1,16 @@
-import { Service } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 
-@Service()
-export class Auth {}
+@Injectable({
+  providedIn: 'root'
+})
+export class Auth {
+
+  private http = inject(HttpClient);
+
+  baseURL = 'http://localhost:5055/api';
+
+  createUser(formData: any) {
+    return this.http.post(this.baseURL + '/signup', formData);
+  }
+}

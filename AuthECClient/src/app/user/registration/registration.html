@@ -1,4 +1,4 @@
-<div class="mb-4 h2 text-success">
+<div class="my-4 h2 fg-success">
   Sign Up
 </div>
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -9,6 +9,11 @@
       placeholder="Full Name"
       formControlName="fullName"
       autocomplete="name">
+      @if(hasDisplayableError('fullName') && form.controls['fullName'].hasError('required')) {
+        <div class="error-feedback text-danger">
+          Please enter your full name.
+        </div>
+      }
   </div>
 
   <div class="mb-3">
@@ -18,6 +23,16 @@
       placeholder="Email"
       formControlName="email"
       autocomplete="email">
+      @if(hasDisplayableError('email') && form.controls['email'].hasError('required')) {
+        <div class="error-feedback text-danger">
+          Please enter your email address.
+        </div>
+      }
+      @if(hasDisplayableError('email') && form.controls['email'].hasError('email')) {
+        <div class="error-feedback text-danger">
+          Please enter a valid email address.
+        </div>
+      }
   </div>
 
   <div class="mb-3">
@@ -27,6 +42,22 @@
       placeholder="Password"
       formControlName="password"
       autocomplete="new-password">
+
+    @if (hasDisplayableError('password')) {
+      <div class="error-feedback text-danger">
+        @switch (form.controls['password'].errors | firstKey) {
+          @case ('required') {
+            <div>Please enter your password.</div>
+          }
+          @case ('minlength') {
+            <div>At least 6 characters required.</div>
+          }
+          @case ('pattern') {
+            <div>One or more special character(s) required.</div>
+          }
+        }
+      </div>
+    }
   </div>
 
   <div class="mb-3">
@@ -36,6 +67,11 @@
       placeholder="Confirm Password"
       formControlName="confirmPassword"
       autocomplete="new-password">
+      @if (hasDisplayableError('confirmPassword') && form.controls['confirmPassword'].hasError('passwordMismatch')) {
+        <div class="error-feedback text-danger">
+          Passwords do not match.
+        </div>
+      }
   </div>
 
   <div class="mt-4">
