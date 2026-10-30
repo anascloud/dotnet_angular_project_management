@@ -4,9 +4,10 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validator
 import { FirstKeyPipe } from '../../shared/pipes/first-key-pipe';
 import { Auth } from '../../shared/services/auth';
 import { ToastrService } from '@iqx-limited/ngx-toastr';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  imports: [ReactiveFormsModule,CommonModule,FirstKeyPipe],
+  imports: [ReactiveFormsModule,CommonModule,FirstKeyPipe,RouterLink],
   selector: 'app-registration',
   styles: ``,
   templateUrl: './registration.html',
@@ -49,10 +50,24 @@ export class Registration {
             this.isSubmitted = false;
             this.toastr.success('New User Created!', 'Registration successful');
           }
-          console.log(res);
         },
-        error: (error) => {
-          console.log('error', error);
+        error: (err) => {
+          if(err.error.errors)
+            err.error.errors.forEach((x: any) => {
+              switch (x.code) {
+                case 'DuplicateUserName':
+                  break;
+                case 'DuplicateEmail':
+                  this.toastr.error('Email already exists!', 'Registration failed');
+                  break;
+                default:
+                  this.toastr.error('Contact admin', 'Registration failed!');
+                  console.log('x', x);
+                  break;
+              }
+            })
+          else
+            console.log('error', err);
         }
       });
     }
@@ -60,6 +75,7 @@ export class Registration {
 
   hasDisplayableError(controlName: string): boolean {
     const control = this.form.controls[controlName];
-    return Boolean(control?.invalid) && (this.isSubmitted || Boolean(control?.touched));
+    return Boolean(control?.invalid) &&
+      (this.isSubmitted || Boolean(control?.touched) || Boolean(control?.dirty));
   }
 }

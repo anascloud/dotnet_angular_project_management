@@ -1,6 +1,10 @@
 <div class="my-4 h2 fg-success">
   Sign Up
 </div>
+<div class="my-2">
+  Already have an account?
+  <a routerLink="/signin" class="text-decoration-none fw-medium text-success d-inline-block">Sign In</a>
+</div>
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="mb-3">
     <input
@@ -8,7 +12,7 @@
       class="form-control bg-body-secondary"
       placeholder="Full Name"
       formControlName="fullName"
-      autocomplete="name">
+      autocomplete="name" />
       @if(hasDisplayableError('fullName') && form.controls['fullName'].hasError('required')) {
         <div class="error-feedback text-danger">
           Please enter your full name.
