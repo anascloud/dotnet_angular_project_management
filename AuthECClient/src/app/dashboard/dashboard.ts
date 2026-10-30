@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   imports: [],
@@ -6,4 +7,10 @@ import { Component } from '@angular/core';
   styles: ``,
   templateUrl: './dashboard.html',
 })
-export class Dashboard {}
+export class Dashboard {
+  constructor(private router: Router) { }
+  onLogout() {
+    localStorage.removeItem('token');
+    this.router.navigateByUrl('/signin');
+  }
+}

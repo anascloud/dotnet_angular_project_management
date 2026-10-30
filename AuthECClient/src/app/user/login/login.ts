@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { Auth } from '../../shared/services/auth';
+import { ToastrService } from '@iqx-limited/ngx-toastr';
 
 @Component({
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
@@ -12,7 +14,7 @@ import { RouterLink } from '@angular/router';
 export class Login {
   form: FormGroup;
   isSubmitted: boolean = false;
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder, private service: Auth, private router: Router, private toastr: ToastrService) {
     this.form = this.formBuilder.group({
       email: ['', Validators.required],
       password: ['', Validators.required],
@@ -27,6 +29,21 @@ export class Login {
 
   onSubmit(){
     this.isSubmitted = true;
-    console.log(this.form.value);
+    if(this.form.valid){
+      this.service.signin(this.form.value).subscribe({
+        next: (res:any) => {
+          localStorage.setItem('token', res.token);
+          this.router.navigateByUrl('/dashboard');
+        },
+        error: (err) => {
+          if(err.status == 400)
+            this.toastr.error('Incorrect username or password', 'Login failed');
+          else
+            console.log('error', err);
+
+        }
+      })
+      console.log(this.form.value);
+    }
   }
 }
